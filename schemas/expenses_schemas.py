@@ -1,18 +1,16 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
 
 class CreateExpenses(BaseModel):
-    name: str
-    money: int
+    money: float = Field(..., gt=0)
     branch_id: int
     source: str
     source_id: int
     kassa_id: int
     comment: str
-    type: str
+
 
 class UpdateExpenses(BaseModel):
     id: int
-    name: str
-    money: int
+    money: float = Field(..., gt=0)
     comment: str
-    type: str

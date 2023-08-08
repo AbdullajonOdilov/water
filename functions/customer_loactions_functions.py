@@ -16,16 +16,17 @@ def all_customer_locations(search, page, limit, db,branch_id):
     customer_locations = customer_locations.filter(search_filter).order_by(Customer_locations.name.asc())
     return pagination(customer_locations, page, limit)
 
-def create_customer_locations_y(form, db,this_user):
+
+def create_customer_locations_y(form, db, this_user):
     if db.query(Customer_locations).filter(Customer_locations.map_lat == form.map_lat).first():
         raise HTTPException(status_code=400, detail="Bu lokatsiya allaqachon bazada bor")
-    if db.query(Customer_locations).filter(Customer_locations.adress == form.adress).first():
+    if db.query(Customer_locations).filter(Customer_locations.address == form.address).first():
         raise HTTPException(status_code=400, detail="Bu adress allaqachon bazada bor")
     new_customer_locations_db = Customer_locations(
-        name = form.name,
+        name=form.name,
         map_long=form.map_long,
         map_lat=form.map_lat,
-        adress=form.adress,
+        address=form.address,
         orienter=form.orienter,
         customer_id=form.customer_id,
         user_id=this_user.id,
@@ -34,14 +35,14 @@ def create_customer_locations_y(form, db,this_user):
     )
     save_in_db(db, new_customer_locations_db)
 
-def update_customer_loactions_y(form,db,this_user):
+
+def update_customer_loactions_y(form, db, this_user):
     if get_in_db(db, Customer_locations, form.id):
         db.query(Customer_locations).filter(Customer_locations.id == form.id).update({
-            Customer_locations.id: form.id,
             Customer_locations.name: form.name,
             Customer_locations.map_long: form.map_long,
             Customer_locations.map_lat: form.map_lat,
-            Customer_locations.adress: form.adress,
+            Customer_locations.address: form.address,
             Customer_locations.user_id: this_user.id,
             Customer_locations.branch_id: this_user.branch_id,
             Customer_locations.orienter: form.orienter,

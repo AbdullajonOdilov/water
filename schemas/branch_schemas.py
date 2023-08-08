@@ -7,18 +7,18 @@ from schemas.phones_schemas import CreatePhone, UpdatePhone
 
 class CreateBranche(BaseModel):
     name: str
-    adress: str
+    address: str
     map_long: str
     map_lat: str
-    status: str
+    status: bool
     phones: List[CreatePhone]
 
 
 class UpdateBranche(BaseModel):
     id: int
     name: str
-    adress: str
+    address: str
     map_long: str
     map_lat: str
-    status: str
+    status: bool
     phones: List[UpdatePhone]

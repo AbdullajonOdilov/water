@@ -9,6 +9,7 @@ from models.customers import Customers
 from models.warehouses import Warehouses
 from models.kassa import Kassas
 
+
 class Phones(Base):
     __tablename__ = "phones"
     id = Column(Integer, autoincrement=True, primary_key=True)

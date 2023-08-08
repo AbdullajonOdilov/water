@@ -17,7 +17,7 @@ def all_products(search, page, limit, db,category_id,branch_id):
     return pagination(products, page, limit)
 
 
-def create_products_y(form, db,this_user):
+def create_products_y(form, db, this_user):
     if db.query(Products).filter(Products.name == form.name).first():
                 raise HTTPException(status_code=400, detail="Bunday malumot allaqachon bazada bor")
     else:

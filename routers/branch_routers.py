@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from functions.branch_func import all_branches, create_branche_r, update_branche_r
+from functions.branch_func import all_branches, create_branch_r, update_branch_r
 from models.branches import Branches
 from utils.auth import get_current_user
 from schemas.users_schemas import CreateUser
@@ -26,12 +26,11 @@ def get_branches(search: str = None, id: int = 0, page: int = 0, limit: int = 25
     return all_branches(search, page, limit, status, db)
 
 
-
 @branches_router.post("/create_branches")
 def create_branches(new_branche: CreateBranche, db: Session = Depends(database),
                 current_user: CreateUser = Depends(get_current_user)):
     role_verification(user=current_user)
-    create_branche_r(new_branche, db, current_user)
+    create_branch_r(new_branche, db, current_user)
     raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")
 
 
@@ -39,7 +38,7 @@ def create_branches(new_branche: CreateBranche, db: Session = Depends(database),
 def update_branches(this_branche: UpdateBranche, db: Session = Depends(database),
                 current_user: CreateUser = Depends(get_current_user)):
     role_verification(user=current_user)
-    update_branche_r(this_branche, db, current_user)
+    update_branch_r(this_branche, db, current_user)
     raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")
 
 

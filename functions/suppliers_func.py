@@ -6,7 +6,8 @@ from utils.db_operations import save_in_db, get_in_db
 from utils.paginatsiya import pagination
 from models.suppliers import Suppliers
 
-def all_suppliers(search, page, limit, db,branch_id):
+
+def all_suppliers(search, page, limit, db, branch_id):
     suppliers = db.query(Suppliers).join(Suppliers.phones).options(joinedload(Suppliers.phones))
     if branch_id > 0:
         suppliers = suppliers.filter(Suppliers.branch_id == branch_id)
@@ -19,7 +20,7 @@ def all_suppliers(search, page, limit, db,branch_id):
 
 def create_supplier_e(form, db, thisuser):
     if db.query(Suppliers).filter(Suppliers.address == form.address).first():
-                raise HTTPException(status_code=400, detail="Bunday supplier allaqachon bazada bor uni yangilashingiz mumkin")
+        raise HTTPException(status_code=400, detail="Bunday supplier allaqachon bazada bor uni yangilashingiz mumkin")
     new_supplier_db = Suppliers(
         name=form.name,
         address=form.address,

@@ -25,6 +25,7 @@ def create_user_products_y(form, db,this_user):
     )
     save_in_db(db, new_user_products_db)
 
+
 def update_user_products_y(form,db,this_user):
     if get_in_db(db, User_products, form.id):
         db.query(User_products).filter(User_products.id == form.id).update({

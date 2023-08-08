@@ -1,13 +1,14 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
 
 class CreateCustomerLocProducts(BaseModel):
-    name: str
-    customer_loc_id: int
-    product_id: int
-    quantity: int
+    customer_loc_id: int = Field(..., gt=0)
+    product_id: int = Field(..., gt=0)
+    quantity: int = Field(..., gt=0)
+
 
 class UpdateCustomerLocProducts(BaseModel):
     id: int
-    name: str
-    product_id: int
-    quantity: int
+    customer_loc_id: int = Field(..., gt=0)
+    product_id: int = Field(..., gt=0)
+    quantity: int = Field(..., gt=0)

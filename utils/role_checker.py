@@ -8,14 +8,18 @@ def role_admin(user):
         raise HTTPException(status_code=401, detail='Sizga ruhsat berilmagan!')
 
 
-
 def role_operator(user):
     if user.role == "operator":
         return True
     else:
         raise HTTPException(status_code=401, detail='Sizga ruhsat berilmagan!')
 
-    
+
+def role_branch_admin(user):
+    if user.role == "branch_admin":
+        return True
+    else:
+        raise HTTPException(status_code=401, detail='Sizga ruhsat berilmagan!')
 
 def role_driver(user):
     if user.role == "driver":
@@ -30,14 +34,7 @@ def role_warehouser(user):
     else:
         raise HTTPException(status_code=401, detail='Sizga ruhsat berilmagan!')
 
+
 def role_verification(user):
-    if user.role == "admin":
-        return True
-    elif user.role == "operator":
-        return True
-    elif user.role == "driver":
-        return True
-    elif user.role == "warehouser":
-        return True
-    else:
+    if user.role not in ["admin", "operator", "driver", "branch_admin", "branch_admin"]:
         raise HTTPException(status_code=401, detail='Sizga ruhsat berilmagan!')

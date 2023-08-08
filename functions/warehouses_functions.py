@@ -19,7 +19,7 @@ def all_warehouses(search, page, limit, db,branch_id):
 
 
 def create_warehouse_e(form, db, thisuser):
-    if db.query(Warehouses).filter(Warehouses.address == form.adress).first():
+    if db.query(Warehouses).filter(Warehouses.address == form.address).first():
                 raise HTTPException(status_code=400, detail="Bunday ombor allaqachon bazada bor uni yangilashingiz mumkin")
     new_warehouse_db = Warehouses(
         name=form.name,

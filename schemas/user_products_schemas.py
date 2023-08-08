@@ -1,12 +1,12 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
 
 class CreateUserProduct(BaseModel):
-    name: str
     product_id: int
-    quantity: int
+    quantity: int = Field(..., gt=0)
+
 
 class UpdateUserProduct(BaseModel):
     id: int
-    name: str
     product_id: int
-    quantity: int
+    quantity: int = Field(..., gt=0)

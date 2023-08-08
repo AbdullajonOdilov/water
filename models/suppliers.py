@@ -16,7 +16,6 @@ class Suppliers(Base):
     branch_id = Column(Integer)
     user_id = Column(Integer)
 
-
     created_user = relationship('Users', foreign_keys=[user_id],
                         primaryjoin=lambda: and_(Users.id == Suppliers.user_id))
 

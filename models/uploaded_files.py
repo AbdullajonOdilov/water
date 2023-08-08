@@ -8,6 +8,7 @@ from models.customers import Customers
 from models.warehouse_products import Warehouses
 from sqlalchemy import TEXT,Text
 
+
 class Uploaded(Base):
     __tablename__ = "uploaded"
     id = Column(Integer, autoincrement=True, primary_key=True)

@@ -31,7 +31,7 @@ def get_categories(search: str = None, id: int = 0, page: int = 0, limit: int = 
 
 @categories_router.post("/create_category")
 def create_category(new_category: CreateCategory, db: Session = Depends(database),
-                current_user: CreateUser = Depends(get_current_user)):
+                   current_user: CreateUser = Depends(get_current_user)):
     role_verification(user=current_user)
     create_category_y(new_category, db,current_user)
     raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")

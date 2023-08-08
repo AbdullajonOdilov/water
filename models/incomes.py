@@ -1,10 +1,8 @@
-from sqlalchemy.orm import relationship,backref
-
+from sqlalchemy.orm import relationship, backref
 from db import Base
 from sqlalchemy import *
 from models.branches import Branches
 from models.orders import Orders
-from models.trades import Trades
 
 from models.users import Users
 
@@ -12,14 +10,12 @@ from models.users import Users
 class Incomes(Base):
     __tablename__ = "incomes"
     id = Column(Integer, autoincrement=True, primary_key=True)
-    name = Column(String(999))
     money = Column(Numeric)
     date = Column(Date)
     comment = Column(String(999))
     kassa_id = Column(Integer)
     user_id = Column(Integer)
     branch_id = Column(Integer)
-    type = Column(String(999))
     source = Column(String(999))
     source_id = Column(Integer)
 
@@ -32,6 +28,3 @@ class Incomes(Base):
                         primaryjoin=lambda: and_(Users.id == Incomes.source_id, Incomes.source == "user"), backref=backref("incomes"))
     this_order = relationship('Orders', foreign_keys=[source_id],
                         primaryjoin=lambda: and_(Orders.id == Incomes.source_id, Incomes.source == "order"), backref=backref("incomes"))
-    # this_trade = relationship('Trades', foreign_keys=[source_id],
-    #                     primaryjoin=lambda: and_(Trades.id == Incomes.source_id, Incomes.source == "trade"), backref=backref("incomes"))
-    

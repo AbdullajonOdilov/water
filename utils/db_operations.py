@@ -19,6 +19,7 @@ def get_in_db(
         )
     return data
 
+
 def get_with_branch(
         db: Session,
         model,
@@ -51,3 +52,10 @@ def yangiledi(
     db.commit()
     db.refresh(data)
     return data
+
+
+def the_one(id, model, db):
+    the_one = db.query(model).filter(model.id == id).first()
+    if not the_one:
+        raise HTTPException(status_code=400, detail=f"No such {model} exists in the database")
+    return the_one

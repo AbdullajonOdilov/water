@@ -1,13 +1,9 @@
 from typing import Union
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
-
-from routers.user_routers import users_router
-from routers.phone_routers import phones_router
-from routers.branch_routers import branches_router
 
 from routers.categories_routers import categories_router
+from routers.notifications import notifications_router
 from routers.products_routers import products_router
 from routers.warehouse_products_router import warehouses_products_router
 from routers.warehouse_routers import warehouses_router
@@ -32,27 +28,33 @@ from routers.suppliers_routers import suppliers_router
 
 
 app = FastAPI()
+
+app.include_router(login_router)
 app.include_router(users_router)
 app.include_router(phones_router)
 app.include_router(branches_router)
+
 app.include_router(categories_router)
 app.include_router(products_router)
 app.include_router(warehouses_router)
-app.include_router(warehouses_products_router)
-app.include_router(orders_router)
-app.include_router(branches_router)
-app.include_router(contracts_router)
-app.include_router(customer_loc_products_router)
-app.include_router(customers_locations_routers)
-app.include_router(customers_routers)
-app.include_router(expenses_router)
 app.include_router(supplies_router)
+app.include_router(warehouses_products_router)
+app.include_router(suppliers_router)
+
+app.include_router(orders_router)
+
+app.include_router(contracts_router)
+app.include_router(customers_routers)
+app.include_router(customers_locations_routers)
+app.include_router(customer_loc_products_router)
+app.include_router(expenses_router)
 app.include_router(trades_router)
 app.include_router(transfers_router)
+
 app.include_router(user_products_router)
 app.include_router(users_router)
 app.include_router(kassas_router)
 app.include_router(incomes_router)
-app.include_router(login_router)
+
 app.include_router(uploaded_router)
-app.include_router(suppliers_router)
+app.include_router(notifications_router)

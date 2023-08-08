@@ -7,6 +7,7 @@ from utils.db_operations import get_in_db, save_in_db
 from utils.paginatsiya import pagination
 from sqlalchemy.orm import joinedload
 
+
 def all_customers(search, page, limit, db,branch_id):
     customers = db.query(Customers).join(Customers.phones).join(Customers.customer_loc).options(joinedload(Customers.phones),joinedload(Customers.customer_loc))
     if branch_id > 0:
@@ -18,6 +19,7 @@ def all_customers(search, page, limit, db,branch_id):
         search_filter = Customers.id > 0
     customers = customers.filter(search_filter).order_by(Customers.name.asc())
     return pagination(customers, page, limit)
+
 
 def create_customers_y(form, db,this_user):
     if db.query(Customers).filter(Customers.name == form.name).first():
@@ -42,6 +44,8 @@ def create_customers_y(form, db,this_user):
                 number = i.number
                 create_phone(name,comment,number,new_customers_db.id,this_user.id,db,"customers",this_user.branch_id)
         raise HTTPException(status_code=200,detail=new_customers_db.id)
+
+
 def update_customers_y(form,db,this_user):
     if get_in_db(db, Customers, form.id):
         db.query(Customers).filter(Customers.id == form.id).update({

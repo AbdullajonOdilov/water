@@ -5,6 +5,7 @@ from models.users import Users
 from models.branches import Branches
 from models.categories import Categories
 
+
 class Products(Base):
     __tablename__ = "products"
     id = Column(Integer, autoincrement=True, primary_key=True)

@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship, backref
 from models.users import Users
 from models.branches import Branches
 
+
 class Customers(Base):
     __tablename__ = "customers"
     id = Column(Integer, autoincrement=True, primary_key=True)

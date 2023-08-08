@@ -1,4 +1,6 @@
 from fastapi import HTTPException
+from sqlalchemy.orm import joinedload
+
 from functions.phones_func import create_phone, update_phone
 from models.phones import Phones
 from utils.db_operations import save_in_db, get_in_db
@@ -7,32 +9,37 @@ from models.branches import Branches
 
 
 def all_branches(search, page, limit, status, db):
+    branches = db.query(Branches).options(joinedload(Branches.phones))
     if search:
         search_formatted = "%{}%".format(search)
         branches = db.query(Branches).filter(Branches.name.like(search_formatted))
-    if status:
-        branches = db.query(Branches).filter(Branches.status == "True")
-    # elif status is None:
-    #     branches = branches
+    if status is True:
+        branches = db.query(Branches).filter(Branches.status == True)
+    elif status is False:
+        branches = db.query(Branches).filter(Branches.status == False)
     else:
-        branches = db.query(Branches).filter(Branches.status == "False")
+        branches = branches
     branches = db.query(Branches).order_by(Branches.name.asc())
     return pagination(branches, page, limit)
 
 
-def create_branche_r(form, db, thisuser):   
+def create_branch_r(form, db, thisuser):
     if db.query(Branches).filter(Branches.name == form.name).first():
         raise HTTPException(status_code=400, detail="Bunday malumot allaqachon bazada bor")
-    if db.query(Branches).filter(Branches.adress == form.adress).first():
+    if db.query(Branches).filter(Branches.address == form.address).first():
         raise HTTPException(status_code=400, detail="Bunday adress allaqachon bazada bor")
-    new_branche_db = Branches(
-            name=form.name,
-            adress=form.adress,
-            map_lat=form.map_lat,
-            map_long=form.map_long,
-            status=form.status
-        )
-    save_in_db(db, new_branche_db)
+    if thisuser.role in ["admin", "branch_admin"]:
+        new_branche_db = Branches(
+                name=form.name,
+                address=form.address,
+                map_lat=form.map_lat,
+                map_long=form.map_long,
+                status=form.status
+            )
+        save_in_db(db, new_branche_db)
+    else:
+        raise HTTPException(status_code=400, detail='Sizga ruxsat berilmagan!')
+
     for i in form.phones:
             comment = i.comment
             if db.query(Phones).filter(Phones.number == i.number).first():
@@ -42,21 +49,22 @@ def create_branche_r(form, db, thisuser):
                 number = i.number
                 create_phone(name,comment,number,new_branche_db.id,thisuser.id,db,"branch",thisuser.branch_id)
                 
-            
 
-def update_branche_r(form, db, thisuser):
+def update_branch_r(form, db, thisuser):
     if get_in_db(db, Branches, form.id) is None or get_in_db(db, Phones, form.phones[0].id) is None:
         raise HTTPException(status_code=400, detail="Branch or Phone not found!")
-
-    db.query(Branches).filter(Branches.id == form.id).update({
-        Branches.id: form.id,
-        Branches.name: form.name,
-        Branches.adress: form.adress,
-        Branches.map_long: form.map_long,
-        Branches.map_lat: form.map_lat,
-        Branches.status: form.status
-    })
-    db.commit()
+    if thisuser.role in ["admin", "branch_admin"]:
+        db.query(Branches).filter(Branches.id == form.id).update({
+            Branches.id: form.id,
+            Branches.name: form.name,
+            Branches.address: form.address,
+            Branches.map_long: form.map_long,
+            Branches.map_lat: form.map_lat,
+            Branches.status: form.status
+        })
+        db.commit()
+    else:
+        raise HTTPException(status_code=400, detail='Sizga ruxsat berilmagan!')
 
     for i in form.phones:
         phone_id = i.id

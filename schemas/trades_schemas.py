@@ -1,14 +1,14 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
 
 class CreateTrade(BaseModel):
-    name: str
     warehouse_pr_id: int
-    quantity: int
+    quantity: int = Field(..., gt=0)
     order_id: int
 
 
 class UpdateTrade(BaseModel):
     id: int
     warehouse_pr_id: int
-    quantity: int
+    quantity: int = Field(..., gt=0)
     order_id: int

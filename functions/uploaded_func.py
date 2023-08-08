@@ -9,6 +9,7 @@ from models.users import Users
 from utils.db_operations import save_in_db
 from utils.paginatsiya import pagination
 
+
 def all_files_r(search, page, limit, db,branch_id):
     uploaded = db.query(Uploaded)
     if branch_id > 0:
@@ -21,9 +22,10 @@ def all_files_r(search, page, limit, db,branch_id):
     uploaded = uploaded.filter(search_filter).order_by(Uploaded.source.asc())
     return pagination(uploaded, page, limit)
 
+
 def create_file_e(new_file, source, source_id, db, thisuser,comment,branch_id):
     if db.query(Uploaded).filter(Uploaded.source == source,
-                                       Uploaded.source_id == source_id).first():
+                                 Uploaded.source_id == source_id).first():
         raise HTTPException(status_code=400, detail="This source already have his own file!")
     if (db.query(Users).filter(Users.id == source_id).first() and source == "user") or \
        (db.query(Branches).filter(Branches.id == source_id).first() and source == "branch") or \
@@ -52,7 +54,7 @@ def create_file_e(new_file, source, source_id, db, thisuser,comment,branch_id):
 def update_file_e(id, new_file, source, source_id, db, user,comment):
     # the_one(db, Uploaded, id, user)
     this_file = db.query(Uploaded).filter(Uploaded.source == source,
-                                                Uploaded.source_id == source_id).first()
+                                          Uploaded.source_id == source_id).first()
     if this_file and this_file.id != id:
         raise HTTPException(status_code=400,
                             detail="Siz kiritayotgan idli file ushbu sourcega tegishli "

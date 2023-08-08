@@ -1,41 +1,18 @@
-from datetime import date
-from typing import List
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field
 from sqlalchemy import *
 
+
 class CreateSupplies(BaseModel):
-    name: str
     product_id: int
-    quantity: int
-    price: int
-    date: date
+    quantity: int = Field(..., gt=0)
+    price: float = Field(..., gt=0)
     warehouse_id: int
     supplier_id: int
-
-    class Config:
-        arbitrary_types_allowed = True
-
-    @validator('date', pre=True)
-    def parse_date(cls, value):
-            if isinstance(value, str):
-                return date.fromisoformat(value)
-            return value
 
 
 class UpdateSupplies(BaseModel):
     id: int
-    name: str
     product_id: int
-    quantity: int
-    price: int
-    date: date
+    quantity: int = Field(..., gt=0)
+    price: int = Field(..., gt=0)
     supplier_id: int
-
-    class Config:
-        arbitrary_types_allowed = True
-    
-    @validator('date', pre=True)
-    def parse_date(cls, value):
-            if isinstance(value, str):
-                return date.fromisoformat(value)
-            return value

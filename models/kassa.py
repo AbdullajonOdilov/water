@@ -1,5 +1,4 @@
 from sqlalchemy.orm import relationship
-
 from db import Base
 from sqlalchemy import *
 from models.branches import Branches

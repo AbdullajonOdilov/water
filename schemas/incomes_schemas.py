@@ -1,21 +1,19 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
 
 class CreateIncome(BaseModel):
-    name: str
-    money: int
+    money: float = Field(..., gt=0)
     comment: str
     kassa_id: int
-    type: str
     source: str
     source_id: int
 
+
 class UpdateIncome(BaseModel):
     id: int
-    name: str
-    money: int
+    money: float = Field(..., gt=0)
     comment: str
     kassa_id: int
-    type: str
     source: str
     source_id: int
     

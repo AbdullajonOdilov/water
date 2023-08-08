@@ -5,12 +5,14 @@ from models.products import Products
 from models.suppliers import Suppliers
 from models.users import Users
 from models.branches import Branches
+from models.warehouses import Warehouses
+
 
 class Supplies(Base):
     __tablename__ = "supplies"
     id = Column(Integer, autoincrement=True, primary_key=True)
-    name = Column(String(999))
     product_id = Column(Integer)
+    warehouse_id = Column(Integer)
     quantity = Column(Integer)
     price = Column(Integer)
     date = Column(DateTime)
@@ -29,4 +31,6 @@ class Supplies(Base):
     
     product = relationship('Products', foreign_keys=[product_id],
                         primaryjoin=lambda: and_(Products.id == Supplies.product_id))
+    warehouse = relationship('Warehouses', foreign_keys=[warehouse_id],
+                             primaryjoin=lambda: and_(Warehouses.id == Supplies.warehouse_id))
     

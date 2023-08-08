@@ -14,7 +14,7 @@ class Categories(Base):
     branch_id = Column(Integer)
 
     created_user = relationship('Users', foreign_keys=[user_id],
-                        primaryjoin=lambda: and_(Users.id == Categories.user_id))
+                                primaryjoin=lambda: and_(Users.id == Categories.user_id))
 
     branch = relationship('Branches', foreign_keys=[branch_id],
                              primaryjoin=lambda: and_(Branches.id == Categories.branch_id))

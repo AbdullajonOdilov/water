@@ -12,11 +12,12 @@ class Users(Base):
     username = Column(String(999))
     password = Column(String(999))
     password_hash = Column(String(999))
-    status = Column(String(999))
+    status = Column(Boolean)
     role = Column(String(999))
     branch_id = Column(Integer)
+    balance = Column(Numeric)
     balance_oylik = Column(Integer)
     token = Column(String(999), default='token')
 
-    branch = relationship("Branches",foreign_keys=[branch_id],
+    branch = relationship("Branches", foreign_keys=[branch_id],
                           primaryjoin=lambda: and_(Branches.id == Users.branch_id))

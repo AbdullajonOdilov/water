@@ -2,9 +2,9 @@ from datetime import date
 from pydantic import BaseModel, validator
 from sqlalchemy import *
 
+
 class CreateContract(BaseModel):
-    name: str
-    customer_loc_id: int
+    warehouse_product_id: int
     quantity: int
     deadline: date
     
@@ -17,11 +17,13 @@ class CreateContract(BaseModel):
                 return date.fromisoformat(value)
             return value
 
+
 class UpdateContract(BaseModel):
     id: int
+    warehouse_product_id: int
     quantity: int
     deadline: date
-    status: str
+    status: bool
 
     class Config:
         arbitrary_types_allowed = True

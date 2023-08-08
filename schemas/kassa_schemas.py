@@ -10,4 +10,8 @@ class CreateKassa(BaseModel):
     phones: List[CreatePhone]
 
 class UpdateKassa(BaseModel):
-    pass
+    id: int
+    name: str
+    comment: str
+    balance: int
+    phones: List[CreatePhone]
