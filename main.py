@@ -37,19 +37,20 @@ app.include_router(branches_router)
 app.include_router(categories_router)
 app.include_router(products_router)
 app.include_router(warehouses_router)
+app.include_router(suppliers_router)
 app.include_router(supplies_router)
 app.include_router(warehouses_products_router)
-app.include_router(suppliers_router)
 
-app.include_router(orders_router)
-
-app.include_router(contracts_router)
 app.include_router(customers_routers)
 app.include_router(customers_locations_routers)
 app.include_router(customer_loc_products_router)
-app.include_router(expenses_router)
+
+app.include_router(orders_router)
 app.include_router(trades_router)
+app.include_router(contracts_router)
 app.include_router(transfers_router)
+app.include_router(expenses_router)
+
 
 app.include_router(user_products_router)
 app.include_router(users_router)

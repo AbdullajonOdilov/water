@@ -1,5 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import joinedload
+
+from functions.hasher_checker import hasher
 from functions.phones_func import create_phone, update_phone
 from models.branches import Branches
 from models.phones import Phones

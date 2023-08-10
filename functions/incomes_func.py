@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
+
 from fastapi import HTTPException
 from functions.kassa_func import update_kassa_r
 from models.incomes import Incomes
@@ -11,16 +13,12 @@ from utils.db_operations import get_in_db, save_in_db, the_one
 from utils.paginatsiya import pagination
 
 
-def all_income_r(search, page, limit, db, branch_id):
+def all_income_r(page, limit, db, branch_id):
     income = db.query(Incomes)
     if branch_id > 0:
         income = income.filter(Incomes.branch_id == branch_id)
-    if search:
-        search_formatted = "%{}%".format(search)
-        search_filter = (Incomes.name.like(search_formatted))
-    else:
-        search_filter = Incomes.id > 0
-    income = income.filter(search_filter).order_by(Incomes.name.asc())
+
+    income = income.order_by(Incomes.id.desc())
     return pagination(income, page, limit)
 
 
@@ -72,7 +70,7 @@ def create_income_r(form, db, thisuser):
             save_in_db(db, new_income)
             update_kassa_r(form.kassa_id, form.money, db, thisuser.id)
             old_user_balance = db.query(Users).filter(Users.id == thisuser.id).first()
-            new_balance = old_user_balance.balance - form.money
+            new_balance = old_user_balance.balance - Decimal(form.money)
             db.query(Users).filter(Users.id == thisuser.id).update({
                 Users.balance: new_balance
             })

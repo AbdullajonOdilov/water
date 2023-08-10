@@ -28,22 +28,25 @@ def get_files(search: str = None, id: int = 0, page: int = 0, limit: int = 25,db
     return all_files_r(search, page, limit, db,branch_id)
 
 
-
 @uploaded_router.post("/create_file")
-def create_file(new_file: UploadFile,source:str= Form("branch"),source_id: int = Form(1),comment: str = Form("XI"),branch_id:int = Form(1),db: Session = Depends(database),
+def create_file(new_file: UploadFile, source: str=Form("branch"),
+                source_id: int = Form(1), comment: str = Form("XI"),
+                branch_id: int = Form(1), db: Session = Depends(database),
                 current_user: CreateUser = Depends(get_current_user)):
     role_verification(user=current_user)
     if source == "branch":
-        create_file_e(new_file,source=source,db=db,thisuser=current_user,source_id=source_id,comment=comment,branch_id=branch_id)
+        create_file_e(new_file,source=source, db=db, thisuser=current_user, source_id=source_id,comment=comment,branch_id=branch_id)
         raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")
     else:
-        raise HTTPException(status_code=404, detail="notogri malumot kiritdin")
+        raise HTTPException(status_code=404, detail="notogri malumot kiritdingiz")
+
 
 @uploaded_router.put("/update_file")
 def update_file(this_file: CreateUpload, db: Session = Depends(database),
                 current_user: CreateUser = Depends(get_current_user)):
     role_verification(user=current_user)
-    update_file_e(this_file.id,this_file.file,this_file.source,this_file.source_id,db,current_user,this_file.comment)
+    update_file_e(this_file.id, this_file.file, this_file.source,
+                  this_file.source_id, db, current_user, this_file.comment)
     raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")
 
 

@@ -31,7 +31,7 @@ class Phones(Base):
                         primaryjoin=lambda: and_(Users.id == Phones.source_id, Phones.source == "user"), backref=backref("phones"))
     
     this_branch = relationship('Branches', foreign_keys=[source_id],
-                        primaryjoin=lambda: and_(Branches.id == Phones.source_id, Phones.source == "branch"), backref=backref("phones"))
+                        primaryjoin=lambda: and_(Branches.id == Phones.source_id, Phones.source == "branch"), backref=backref("phones", lazy="joined"))
     
     this_customer = relationship('Customers', foreign_keys=[source_id],
                         primaryjoin=lambda: and_(Customers.id == Phones.source_id, Phones.source == "customers"), backref=backref("phones"))

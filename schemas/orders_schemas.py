@@ -1,5 +1,5 @@
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class CreateOrder(BaseModel):
@@ -11,7 +11,7 @@ class CreateOrder(BaseModel):
 
 class UpdateOrder(BaseModel):
     id: int
-    status: int
+    status: int = Field(..., le=4)
     driver_id: int
     warehouser_id: int
     customer_loc_id: int

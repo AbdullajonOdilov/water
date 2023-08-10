@@ -18,16 +18,16 @@ class Transfers(Base):
     warehouse_product_id = Column(Integer)
     quantity = Column(Integer)
     date = Column(Date)
-    warehoueser_id = Column(Integer)
+    warehouser_id = Column(Integer)
     driver_id = Column(Integer)
     status = Column(Boolean)
     
-    user = relationship("Users",foreign_keys=[warehoueser_id],
-                        primaryjoin=lambda: and_(Users.id == Transfers.warehoueser_id))
+    user = relationship("Users",foreign_keys=[warehouser_id],
+                        primaryjoin=lambda: and_(Users.id == Transfers.warehouser_id))
     branch = relationship("Users",foreign_keys=[driver_id],
                           primaryjoin=lambda: and_(Users.id == Transfers.driver_id))
     order = relationship('Orders', foreign_keys=[order_id],
                          primaryjoin=lambda: and_(Orders.id == Transfers.order_id))
     w_product = relationship("Warehouses_products", foreign_keys=[warehouse_product_id],
-                        primaryjoin=lambda: and_(Warehouses_products.id == Transfers.warehouse_product_id))
+                              primaryjoin=lambda: and_(Warehouses_products.id == Transfers.warehouse_product_id))
     

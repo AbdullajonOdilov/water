@@ -1,35 +1,17 @@
 from datetime import date
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field
 from sqlalchemy import *
 
 
 class CreateContract(BaseModel):
     warehouse_product_id: int
-    quantity: int
-    deadline: date
-    
-    class Config:
-        arbitrary_types_allowed = True
-
-    @validator('deadline', pre=True)
-    def parse_date(cls, value):
-            if isinstance(value, str):
-                return date.fromisoformat(value)
-            return value
+    quantity: int = Field(..., ge=0)
+    deadline: int = Field(..., gt=0)
 
 
 class UpdateContract(BaseModel):
     id: int
     warehouse_product_id: int
-    quantity: int
-    deadline: date
+    quantity: int = Field(..., ge=0)
+    deadline: int = Field(..., gt=0)
     status: bool
-
-    class Config:
-        arbitrary_types_allowed = True
-
-    @validator('deadline', pre=True)
-    def parse_date(cls, value):
-            if isinstance(value, str):
-                return date.fromisoformat(value)
-            return value

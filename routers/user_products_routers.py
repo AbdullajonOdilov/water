@@ -16,7 +16,7 @@ user_products_router = APIRouter(
 
 
 @user_products_router.get("/get_user_products")
-def get_products(search: str = None, id: int = 0,
+def get_products(id: int = 0,
                  page: int = 0, limit: int = 25,
                  role: str = None, db: Session = Depends(database),
                  current_user: CreateUser = Depends(get_current_active_user),
@@ -26,7 +26,7 @@ def get_products(search: str = None, id: int = 0,
         raise HTTPException(status_code=400, detail="page yoki limit 0 dan kichik kiritilmasligi kerak")
     if id > 0:
         return the_one(id, User_products, db)
-    return all_user_products(search, page, limit, branch_id, role, db)
+    return all_user_products(page, limit, branch_id, role, db)
 
 
 @user_products_router.post("/create_user_products")

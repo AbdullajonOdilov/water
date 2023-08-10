@@ -18,18 +18,6 @@ class CreateUser(BaseModel):
     branch_id: int
     phones: List[CreatePhone]
 
-    # @validator('role', pre=True)
-    # def validate_role_admin(cls, v):
-    #     if v == 'admin' and cls.count_users_with_role(v) > 0:
-    #         raise ValueError('Only one user can have the role "admin"')
-    #     return v
-    #
-    # @classmethod
-    # def count_users_with_role(cls, role, db: Session):
-    #     count = db.query(Users).filter(Users.role == role).count()
-    #
-    #     return count
-
 
 class UpdateUser(BaseModel):
     id: int
@@ -41,16 +29,4 @@ class UpdateUser(BaseModel):
     balance_oylik: int
     phones: List[UpdatePhone]
 
-    # @validator('role', pre=True)
-    # def validate_role_admin(cls, v, values):
-    #     db = values['db']  # Get the SQLAlchemy session from the values dictionary
-    #     if v == 'admin' and cls.count_users_with_role(v, db) > 0:
-    #         raise ValueError('Only one user can have the role "admin"')
-    #     return v
-    #
-    # @classmethod
-    # def count_users_with_role(cls, role, db: Session):
-    #     count = db.query(Users).filter(Users.role == role).count()
-    #
-    #     return count
 

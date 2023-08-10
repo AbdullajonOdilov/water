@@ -19,13 +19,13 @@ def get_transfers(search: str = None, page: int = 0,
                   limit: int = 25,
                   db: Session = Depends(database),
                   current_user: CreateUser = Depends(get_current_active_user),
-                  id: int=0, branch_id: int = 0):
+                  id: int=0):
     role_verification(user=current_user)
     if page < 0 or limit < 0:
         raise HTTPException(status_code=400, detail="page yoki limit 0 dan kichik kiritilmasligi kerak")
     if id > 0:
         return get_in_db(db, Transfers, id)
-    return all_transfers(search, page, limit, db, branch_id)
+    return all_transfers(search, page, limit, db)
 
 
 @transfers_router.post("/create_transfers")
@@ -34,13 +34,13 @@ def create_transfers(new_transfer: CreateTransfer,
                      current_user: CreateUser = Depends(get_current_active_user)):
     role_verification(user=current_user)
     create_transfers_y(new_transfer, db, current_user)
-    raise HTTPException(status_code=200,detail="Amaliyot muvaffaqiyatli yakunlandi")
+    raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli yakunlandi")
 
 
 @transfers_router.put("/update_transfers")
 async def update_transfers(this_transfer: UpdateTransfer,
-                     db: Session = Depends(database),
-                     current_user: CreateUser = Depends(get_current_active_user)):
+                           db: Session = Depends(database),
+                           current_user: CreateUser = Depends(get_current_active_user)):
     role_verification(user=current_user)
     await update_transfers_y(this_transfer, db, current_user)
     raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli yakunlandi")

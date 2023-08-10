@@ -24,8 +24,7 @@ class CreateTransfer(BaseModel):
 class UpdateTransfer(BaseModel):
     id: int
     quantity: int = Field(..., gt=0)
-    date: date
-    warehoueser_id: int
+    warehouser_id: int
     driver_id: int
     status: bool
     

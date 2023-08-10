@@ -4,23 +4,18 @@ from utils.paginatsiya import pagination
 from models.contracts import Contracts
 
 
-def all_contracts_r(search, page, limit, db, branch_id):
+def all_contracts_r(page, limit, db, branch_id):
     contracts = db.query(Contracts)
     if branch_id > 0:
         contracts = db.query(Contracts).filter(Contracts.branch_id == branch_id)
-    if search:
-        search_formatted = "%{}%".format(search)
-        contracts = contracts.filter(Contracts.name.like(search_formatted))
-    else:
-        search_filter = Contracts.id > 0
-    contracts = db.query(Contracts).filter(search_filter).order_by(Contracts.name.asc())
+    contracts = contracts.order_by(Contracts.id.desc())
     return pagination(contracts, page, limit)
 
 
 def create_contract_y(form, db, this_user):
     the_one(form.warehouse_product_id, Warehouses_products, db)
     new_contract_db = Contracts(
-        warehouses_product_id=form.warehouses_product_id,
+        warehouse_product_id=form.warehouse_product_id,
         quantity=form.quantity,
         deadline=form.deadline,
         status=True,

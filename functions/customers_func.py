@@ -3,7 +3,7 @@ from functions.phones_func import create_phone, update_phone
 from models.customer_locations import Customer_locations
 from models.customers import Customers
 from models.phones import Phones
-from utils.db_operations import get_in_db, save_in_db
+from utils.db_operations import save_in_db, the_one
 from utils.paginatsiya import pagination
 from sqlalchemy.orm import joinedload
 
@@ -11,8 +11,8 @@ from sqlalchemy.orm import joinedload
 def all_customers(search, page, limit, db,branch_id):
     customers = db.query(Customers).join(Customers.phones).join(Customers.customer_loc).options(joinedload(Customers.phones),joinedload(Customers.customer_loc))
     if branch_id > 0:
-         customers = customers.filter(Customers.branch_id == branch_id)
-    if search :
+        customers = customers.filter(Customers.branch_id == branch_id)
+    if search:
         search_formatted = "%{}%".format(search)
         customers = customers.filter(Customers.name.like(search_formatted))
     else:
@@ -21,9 +21,11 @@ def all_customers(search, page, limit, db,branch_id):
     return pagination(customers, page, limit)
 
 
-def create_customers_y(form, db,this_user):
+def create_customers_y(form, db, this_user):
     if db.query(Customers).filter(Customers.name == form.name).first():
-                raise HTTPException(status_code=400, detail="Bunday malumot allaqachon bazada bor")
+        raise HTTPException(status_code=400, detail="Bunday malumot allaqachon bazada bor")
+    if form.type not in ['premium', 'umumiy']:
+        raise HTTPException(status_code=400, detail="Type error")
     else:
         new_customers_db = Customers(
             name=form.name,
@@ -38,7 +40,7 @@ def create_customers_y(form, db,this_user):
         for i in form.phones:
             comment = i.comment
             if db.query(Phones).filter(Phones.number == i.number).first():
-                    raise HTTPException(status_code=400, detail="Bu malumotlar allaqachon bazada bor")
+                raise HTTPException(status_code=400, detail="Bu malumotlar allaqachon bazada bor")
             else:
                 name = i.name
                 number = i.number
@@ -46,10 +48,11 @@ def create_customers_y(form, db,this_user):
         raise HTTPException(status_code=200,detail=new_customers_db.id)
 
 
-def update_customers_y(form,db,this_user):
-    if get_in_db(db, Customers, form.id):
+def update_customers_y(form, db, this_user):
+    if form.type not in ['premium', 'umumiy']:
+        raise HTTPException(status_code=400, detail="Type error")
+    if the_one(form.id, Customers, db):
         db.query(Customers).filter(Customers.id == form.id).update({
-            Customers.id: form.id,
             Customers.name: form.name,
             Customers.type: form.type,
             Customers.comment: form.comment,

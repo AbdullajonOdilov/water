@@ -36,5 +36,5 @@ def role_warehouser(user):
 
 
 def role_verification(user):
-    if user.role not in ["admin", "operator", "driver", "branch_admin", "branch_admin"]:
+    if user.role not in ["admin", "operator", "driver", "branch_admin", "branch_admin", "warehouser"]:
         raise HTTPException(status_code=401, detail='Sizga ruhsat berilmagan!')

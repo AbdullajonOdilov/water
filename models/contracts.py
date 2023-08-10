@@ -13,7 +13,7 @@ class Contracts(Base):
     id = Column(Integer, autoincrement=True, primary_key=True)
     warehouse_product_id = Column(Integer)
     quantity = Column(Integer)
-    deadline = Column(Date)
+    deadline = Column(Integer)
     status = Column(Boolean)
     user_id = Column(Integer)
     branch_id = Column(Integer)

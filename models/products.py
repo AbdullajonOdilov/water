@@ -12,6 +12,7 @@ class Products(Base):
     name = Column(String(999))
     comment = Column(String(999))
     price = Column(Integer)
+    litr = Column(Float)
     category_id = Column(Integer)
     user_id = Column(Integer)
     branch_id = Column(Integer)

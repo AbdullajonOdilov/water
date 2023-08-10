@@ -16,7 +16,7 @@ incomes_router = APIRouter(
 
 
 @incomes_router.get("/get_incomes")
-def get_incomes(search: str = None, id: int = 0, page: int = 0, limit: int = 25,
+def get_incomes(id: int = 0, page: int = 0, limit: int = 25,
                 db: Session = Depends(database),
                 current_user: CreateUser = Depends(get_current_active_user),
                 branch_id: int = 0):
@@ -25,7 +25,7 @@ def get_incomes(search: str = None, id: int = 0, page: int = 0, limit: int = 25,
         raise HTTPException(status_code=400, detail="page yoki limit 0 dan kichik kiritilmasligi kerak")
     if id > 0:
         return get_in_db(db, Incomes, id)
-    return all_income_r(search, page, limit, db, branch_id)
+    return all_income_r(page, limit, db, branch_id)
 
 
 @incomes_router.post("/create_income")

@@ -16,7 +16,7 @@ contracts_router = APIRouter(
 
 
 @contracts_router.get("/get_contracts")
-def all_contracts(search: str = None, id: int = 0, page: int = 0,
+def all_contracts(id: int = 0, page: int = 0,
                   limit: int = 25,
                   db: Session = Depends(database),
                   current_user: CreateUser = Depends(get_current_active_user),
@@ -26,7 +26,7 @@ def all_contracts(search: str = None, id: int = 0, page: int = 0,
         raise HTTPException(status_code=400, detail="page yoki limit 0 dan kichik kiritilmasligi kerak")
     if id > 0:
         return the_one(id, Contracts, db)
-    return all_contracts_r(search, page, limit, db, branch_id)
+    return all_contracts_r(page, limit, db, branch_id)
 
 
 @contracts_router.post("/create_contract")

@@ -9,17 +9,16 @@ from models.branches import Branches
 
 
 def all_branches(search, page, limit, status, db):
-    branches = db.query(Branches).options(joinedload(Branches.phones))
+    branches = db.query(Branches)
     if search:
-        search_formatted = "%{}%".format(search)
-        branches = db.query(Branches).filter(Branches.name.like(search_formatted))
+        branches = branches.filter(Branches.name.like(f"%{search}%"))
     if status is True:
-        branches = db.query(Branches).filter(Branches.status == True)
+        branches = branches.filter(Branches.status == True)
     elif status is False:
-        branches = db.query(Branches).filter(Branches.status == False)
+        branches = branches.filter(Branches.status == False)
     else:
         branches = branches
-    branches = db.query(Branches).order_by(Branches.name.asc())
+    branches = db.query(Branches).order_by(Branches.id.desc())
     return pagination(branches, page, limit)
 
 
@@ -47,7 +46,7 @@ def create_branch_r(form, db, thisuser):
             else:
                 name = i.name
                 number = i.number
-                create_phone(name,comment,number,new_branche_db.id,thisuser.id,db,"branch",thisuser.branch_id)
+                create_phone(name, comment, number, new_branche_db.id, thisuser.id, db, "branch",  thisuser.branch_id)
                 
 
 def update_branch_r(form, db, thisuser):

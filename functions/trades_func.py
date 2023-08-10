@@ -3,7 +3,7 @@ from models.branches import Branches
 from models.orders import Orders
 from models.trades import Trades
 from models.warehouse_products import Warehouses_products
-from utils.db_operations import get_in_db, save_in_db, the_one
+from utils.db_operations import save_in_db, the_one
 from utils.paginatsiya import pagination
 from sqlalchemy.orm import joinedload, join
 
@@ -20,12 +20,12 @@ def all_trades_r(search, page, limit, db, branch_id):
 
 
 def create_trade_r(data, db, thisuser):
-    # if db.query(Trades).filter(Trades.order_id == data.order_id).first():
-    #             raise HTTPException(status_code=400, detail="Bunday trade orderga allaqachon allaqachon bazada bor")
+    if db.query(Trades).filter(Trades.order_id == data.order_id).first():
+        raise HTTPException(status_code=400, detail="Bunday trade orderga allaqachon allaqachon bazada bor")
+    the_one(thisuser.branch_id, Branches, db)
+    the_one(data.warehouse_pr_id, Warehouses_products, db)
     order = the_one(data.order_id, Orders, db)
-    if order.status  == "0" or order.status == "1" and \
-            the_one(data.warehouse_pr_id, Warehouses_products, db) != None and\
-            the_one(thisuser.branch_id, Branches,  db) != None:
+    if order.status == 0 or order.status == 1:
         product = db.query(Warehouses_products).filter(Warehouses_products.id == data.warehouse_pr_id).first()
         new_product_quantity = product.quantity - data.quantity
         price = product.price * data.quantity
@@ -33,23 +33,24 @@ def create_trade_r(data, db, thisuser):
             new_trade = Trades(
                 warehouse_pr_id=data.warehouse_pr_id,
                 price=price,
-                quantity=data.quantity,#false,
+                quantity=data.quantity, #false,
                 order_id=data.order_id,
                 user_id=thisuser.id,
                 branch_id=thisuser.branch_id
 
             )
             save_in_db(db, new_trade)
-        #     db.query(Warehouses_products).filter(Warehouses_products.id == data.warehouse_pr_id).update({
-        #     Warehouses_products.quantity: new_product_quantity
-        # })
+
             db.commit()
             # kassa = db.query(Kassas).filter(Kassas.branch_id == data.branch_id).first()
             # create_income_r("trade",data.order_id,kassa.id,thisuser.id,"TRade Income","trade",price,data.branch_id,db)
         else:
-             raise HTTPException(status_code=400,detail="Warehouse da buncha maxsulot mavjud emas")
+             raise HTTPException(status_code=400, detail="Warehouse da buncha maxsulot mavjud emas")
+        db.query(Orders).filter(Orders.id == data.order_id).update({
+            Orders.status: Orders.status + 1
+        })
     else:
-        raise HTTPException(status_code=400,detail="Bu order statusi 1 yoki avval order status yangilang yoki yangi order oching")
+        raise HTTPException(status_code=400, detail="Bu order statusi 1 yoki avval order status yangilang yoki yangi order oching")
 
 
 def update_trade_r(form, db, thisuser):
@@ -57,7 +58,7 @@ def update_trade_r(form, db, thisuser):
     product = db.query(Warehouses_products).filter(Warehouses_products.id == form.warehouse_pr_id).first()
     # new_quantity = trade.quantity + form.quantity
     price = product.price * form.quantity
-    if order.status != "2":
+    if order.status != 4:
         if the_one(form.id, Trades, db):
             db.query(Trades).filter(Trades.id == form.id).update({
                 Trades.warehouse_pr_id: form.warehouse_pr_id,
@@ -69,6 +70,6 @@ def update_trade_r(form, db, thisuser):
             })
             db.commit()
         else:
-            raise HTTPException(status_code=400, detail="TRade topilmadi")
+            raise HTTPException(status_code=400, detail="Trade topilmadi")
     else:
-        raise HTTPException(status_code=400, detail="Bu savdo allaqachon 2 yani bajarilgan")
+        raise HTTPException(status_code=400, detail="Bu savdo allaqachon bajarilgan, status=3")

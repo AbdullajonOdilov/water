@@ -6,7 +6,7 @@ from functions.warehouse_products_func import all_warehouses_products, create_wa
 from models.warehouse_products import Warehouses_products
 from utils.auth import get_current_active_user
 from utils.db_operations import the_one
-from schemas.warehouse_products_schemas import Warehouse_products_create, Warehouse_products_update
+from schemas.warehouse_products_schemas import Warehouse_products_update
 from schemas.users_schemas import CreateUser
 from db import database
 from utils.role_checker import *
@@ -30,12 +30,12 @@ def get_warehouses(search: str = None, id: int = 0, page: int = 0,
     return all_warehouses_products(search, page, limit, db, branch_id, warehouse_id)
 
 
-@warehouses_products_router.post("/create_warehouses_products")
-def create_warehouse(new_warehouse: Warehouse_products_create, db: Session = Depends(database),
-                     current_user: CreateUser = Depends(get_current_active_user)):
-    role_verification(user=current_user)
-    create_warehouse_products_e(new_warehouse, db, current_user)
-    raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")
+# @warehouses_products_router.post("/create_warehouses_products")
+# def create_warehouse(new_warehouse: Warehouse_products_create, db: Session = Depends(database),
+#                      current_user: CreateUser = Depends(get_current_active_user)):
+#     role_verification(user=current_user)
+#     create_warehouse_products_e(new_warehouse, db, current_user)
+#     raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")
 
 
 @warehouses_products_router.put("/update_warehouses_products")
