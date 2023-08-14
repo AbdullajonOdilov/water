@@ -2,11 +2,14 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 
 from fastapi import HTTPException
+from sqlalchemy.orm import joinedload
+
 from functions.kassa_func import update_kassa_r
 from models.incomes import Incomes
 from models.kassa import Kassas
 from models.orders import Orders
-from models.trades import Trades
+from models.products import Products
+from models.transfers import Transfers
 from models.users import Users
 from models.warehouse_products import Warehouses_products
 from utils.db_operations import get_in_db, save_in_db, the_one
@@ -14,72 +17,94 @@ from utils.paginatsiya import pagination
 
 
 def all_income_r(page, limit, db, branch_id):
-    income = db.query(Incomes)
+    incomes = db.query(Incomes).options(joinedload(Incomes.kassa),
+                                        joinedload(Incomes.this_order),
+                                        joinedload(Incomes.user))
     if branch_id > 0:
-        income = income.filter(Incomes.branch_id == branch_id)
+        incomes = incomes.filter(Incomes.branch_id == branch_id)
 
-    income = income.order_by(Incomes.id.desc())
-    return pagination(income, page, limit)
+    incomes = incomes.order_by(Incomes.id.desc())
+    return pagination(incomes, page, limit)
+
+
+def one_income(ident, db):
+    the_item = db.query(Incomes).filter(Incomes.id == ident).options(
+        joinedload(Incomes.kassa), joinedload(Incomes.this_order), joinedload(Incomes.user)
+    ).first()
+    if the_item is None:
+        raise HTTPException(status_code=404)
+    return the_item
 
 
 def create_income_r(form, db, thisuser):
-    kassa = the_one(form.kassa_id, Kassas, db)
-    if form.source == "order":
-        order = db.query(Orders).filter(Orders.id == form.source_id).first()
-        trades = db.query(Trades).filter(Trades.order_id == order.id)
-        if order and order.status == "1":
-            for trade in trades:
-                quantity = trade.quantity
-                warehouse_pr_id = trade.warehouse_pr_id
-                old = db.query(Warehouses_products).filter(Warehouses_products.id == warehouse_pr_id).first()
-                print(old.quantity)
-                if old.quantity > quantity:
-                    new_quantity = old.quantity - quantity
-                    db.query(Warehouses_products).filter(Warehouses_products.id == warehouse_pr_id).update({
-                        Warehouses_products.quantity: new_quantity
-                    })
-                    db.commit()
-                    db.query(Orders).filter(Orders.id == form.source_id).update({
-                Orders.status: "2"
-                })
-                    db.commit()
-                else:
-                    raise HTTPException(status_code=400,detail="Omborda siz so'ragancha maxsulot yoq")
-
-        old_user_balance = db.query(Users).filter(Users.id == thisuser.id).first()
-        new_balance = old_user_balance.balance + form.money
-        db.query(Users).filter(Users.id == thisuser.id).update({
-            Users.balance: new_balance
+    the_one(form.kassa_id, Kassas, db)
+    order = db.query(Orders).filter(Orders.id == form.source_id).first()
+    if order.status != 2:
+        raise HTTPException(status_code=400, detail="Orderni status 2 emas")
+    transfer = db.query(Transfers).filter(Transfers.id == order.id).first()
+    if not transfer:
+        raise HTTPException(status_code=404, detail="Transfer topilmadi")
+    if form.source not in ["order", "user"]:
+        raise HTTPException(status_code=400, detail="source order yoki userga teng bo'la oladi holos")
+    warehouse_product = db.query(Warehouses_products).filter(
+        Warehouses_products.id == transfer.warehouse_product_id).first()
+    if not warehouse_product:
+        raise HTTPException(status_code=404, detail="Warehouse product topilmadi")
+    product = db.query(Products).filter(Products.id == warehouse_product.product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product topilmadi")
+    money = transfer.quantity * product.price
+    driver = db.query(Users).filter(Users.id == transfer.driver_id).first()
+    if money > driver.balance:
+        raise HTTPException(status_code=400, detail='driver barcha pulni olmagan')
+    else:
+        new_income = Incomes(
+            money=form.money,
+            date=datetime.today(),
+            comment=form.comment,
+            kassa_id=form.kassa_id,
+            user_id=thisuser.id,
+            branch_id=thisuser.branch_id,
+            source=form.source,
+            source_id=form.source_id,
+        )
+        save_in_db(db, new_income)
+        update_kassa_r(form.kassa_id, form.money, db, thisuser.id)
+        db.query(Users).filter(Users.id == transfer.driver_id).update({
+            Users.balance: Users.balance - form.money
         })
         db.commit()
-                    # update_kassa_r(form.kassa_id,form.money,db,thisuser.id)
+        # old_kassa_balance = db.query(Kassas).filter(Kassas.id == form.kassa_id).first()
+        # new_balance = old_kassa_balance.balance + Decimal(form.money)
+        # db.query(Kassas).filter(Kassas.id == form.kassa_id).update({
+        #     Kassas.balance: Kassas.balance + new_balance
+        # })
+        # db.commit()
 
-    elif form.source == "user" and kassa != None:
-        user = db.query(Users).filter(Users.id == thisuser.id).first()
-        if user.balance >= form.money:
-            new_income = Incomes(
-                money=form.money,
-                date=datetime.today(),
-                comment=form.comment,
-                kassa_id=form.kassa_id,
-                user_id=thisuser.id,
-                branch_id=thisuser.branch_id,
-                source=form.source,
-                source_id=thisuser.id
-            )
-            save_in_db(db, new_income)
-            update_kassa_r(form.kassa_id, form.money, db, thisuser.id)
-            old_user_balance = db.query(Users).filter(Users.id == thisuser.id).first()
-            new_balance = old_user_balance.balance - Decimal(form.money)
-            db.query(Users).filter(Users.id == thisuser.id).update({
-                Users.balance: new_balance
-            })
-            db.commit()
-        else:
-            raise HTTPException(status_code=400,detail="Balansizgizda yetarli mablag' yo'q yoki notogri malumot kiritdingiz")
-    
-    elif form.source == "admin":
-        pass
+    # elif form.source == "user" and kassa != None:
+    #     user = db.query(Users).filter(Users.id == thisuser.id).first()
+    #     if user.balance >= form.money:
+    #         new_income = Incomes(
+    #             money=form.money,
+    #             date=datetime.today(),
+    #             comment=form.comment,
+    #             kassa_id=form.kassa_id,
+    #             user_id=thisuser.id,
+    #             branch_id=thisuser.branch_id,
+    #             source=form.source,
+    #             source_id=form.source_id,
+    #         )
+    #         save_in_db(db, new_income)
+    #         update_kassa_r(form.kassa_id, form.money, db, thisuser.id)
+    #         old_user_balance = db.query(Users).filter(Users.id == thisuser.id).first()
+    #         new_balance = old_user_balance.balance - Decimal(form.money)
+    #         db.query(Users).filter(Users.id == thisuser.id).update({
+    #             Users.balance: new_balance
+    #         })
+    #         db.commit()
+    #     else:
+    #         raise HTTPException(status_code=400, detail="Balansizgizda yetarli mablag'
+    #         yo'q yoki notogri malumot kiritdingiz")
 
 
 def update_income_e(form, db, thisuser):
@@ -114,4 +139,3 @@ def delete_income_e(id, db):
     get_in_db(db, Incomes, id)
     db.query(Incomes).filter(Incomes.id == id).delete()
     db.commit()
-

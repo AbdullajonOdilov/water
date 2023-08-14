@@ -25,6 +25,17 @@ def all_orders(search, page, limit, db,branch_id):
     return pagination(orders, page, limit)
 
 
+# bitta order malumotini olish uchun function
+def one_order(db, ident):
+    the_p = db.query(Orders).filter(Orders.id == ident).options(joinedload(Orders.this_operator),
+                                                                joinedload(Orders.this_driver),
+                                                                joinedload(Orders.this_warehouser),
+                                                                joinedload(Orders.customer_loc)).first()
+    if the_p is None:
+        raise HTTPException(status_code=404)
+    return the_p
+
+
 async def create_order_r(data, db, thisuser):
     users = db.query(Users).filter(Users.status, Users.branch_id == thisuser.branch_id).all()
     the_one(data.customer_loc_id, Customer_locations, db)
@@ -36,9 +47,9 @@ async def create_order_r(data, db, thisuser):
         new_order = Orders(
             operator_id=thisuser.id,
             status=0,
-            driver_id=data.driver_id,
+            driver_id=0,
             date=datetime.now(),
-            warehouser_id=data.warehouser_id,
+            warehouser_id=0,
             customer_loc_id=data.customer_loc_id,
             user_id=thisuser.id,
             branch_id=thisuser.branch_id,
@@ -59,6 +70,8 @@ async def create_order_r(data, db, thisuser):
 async def update_order_r(data, db, thisuser):
     users = db.query(Users).filter(Users.status, Users.branch_id == thisuser.branch_id).all()
     the_one(data.customer_loc_id, Customer_locations, db)
+    the_one(data.driver_id, Users, db)
+    the_one(data.warehouser_id, Users, db)
     order = the_one(data.id, Orders, db)
     if db.query(Orders).filter(Orders.id == data.id).first().status == 2:
         raise HTTPException(status_code=400, detail=f"Bu id: {data.id} dagi order  bajarildi!")
@@ -67,7 +80,7 @@ async def update_order_r(data, db, thisuser):
                                                     "xozir buni faqat 0 yoki 1 yani bajarilmoqda ga ozgartirishingiz mumkin")
     if db.query(Orders).filter(Orders.id == data.id).first().status == 1 and data.status != 0 and data.status != 1 and data.status != 2:
         raise HTTPException(status_code=400,
-                            detail="Bu order xozir 1 yani bajarilmoqdaga teng uni 0 yoki 1ligicha "
+                            detail="Bu order xozir 1 yani bajarilmoqdaga teng uni 0 yoki 1 ligicha "
                                    "yoki 2 bajarildi ga ozgartirishingiz mumkin")
     db.query(Orders).filter(Orders.id == data.id).update({
         Orders.operator_id: thisuser.id,
@@ -84,7 +97,7 @@ async def update_order_r(data, db, thisuser):
     if order.status == 1:
         for user in users:
             data = NotificationSchema(
-                title="Yangi buyurtma yaratildi!",
+                title="Buyurtma haydovchiga biriktirildi!",
                 body=f"Hurmatli foydalanuvchi {user_id.name} buyurtma sizga biriktirildi!",
                 user_id=user.id,
             )
@@ -92,9 +105,12 @@ async def update_order_r(data, db, thisuser):
 
 
 def delete_order_r(id, db):
-    get_in_db(db, Orders, id)
+    the_one(id, Orders, db)
     db.query(Orders).filter(Orders.id == id).delete()
     db.commit()
+
+
+
 
 
 

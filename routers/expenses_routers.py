@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from functions.expenses_func import all_expenses, create_expenses_y, update_expenses_y
-from models.expenses import Expenses
+from functions.expenses_func import all_expenses, create_expenses_y, update_expenses_y, one_expense
 from utils.auth import get_current_active_user
 from schemas.users_schemas import CreateUser
-from utils.db_operations import get_in_db
 from schemas.expenses_schemas import CreateExpenses, UpdateExpenses
 from db import database
 from utils.role_checker import *
@@ -16,7 +14,7 @@ expenses_router = APIRouter(
 
 
 @expenses_router.get("/get_expenses")
-def get_expenses(search: str = None, id: int = 0,
+def get_expenses(id: int = 0,
                  page: int = 0, limit: int = 25,
                  db: Session = Depends(database),
                  current_user: CreateUser = Depends(get_current_active_user),
@@ -25,8 +23,8 @@ def get_expenses(search: str = None, id: int = 0,
     if page < 0 or limit < 0:
         raise HTTPException(status_code=400, detail="page yoki limit 0 dan kichik kiritilmasligi kerak")
     if id > 0:
-        return get_in_db(db, Expenses, id)
-    return all_expenses(search, page, limit, db,branch_id)
+        return one_expense(db, id)
+    return all_expenses(page, limit, db, branch_id)
 
 
 @expenses_router.post("/create_expenses")

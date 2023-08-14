@@ -11,7 +11,8 @@ from sqlalchemy.orm import joinedload
 
 
 def all_kassa_r(search, page, limit, db,branch_id):
-    kassa = db.query(Kassas).join(Kassas.phones).options(joinedload(Kassas.phones))
+    kassa = db.query(Kassas).join(Kassas.phones).options(joinedload(Kassas.phones),
+                                                         joinedload(Kassas.user))
     if branch_id > 0:
         kassa = kassa.filter(Kassas.branch_id == branch_id)
     if search :
@@ -21,6 +22,16 @@ def all_kassa_r(search, page, limit, db,branch_id):
         search_filter = Kassas.id > 0
     kassa = kassa.filter(search_filter).order_by(Kassas.name.asc())
     return pagination(kassa, page, limit)
+
+
+def one_kassa(ident, db):
+    the_item = db.query(Kassas).filter(Kassas.id == ident).options(
+        joinedload(Kassas.phones),
+        joinedload(Kassas.user)
+    ).first()
+    if the_item is None:
+        raise HTTPException(status_code=404)
+    return the_item
 
 
 def create_kassa_r(data, db, thisuser):

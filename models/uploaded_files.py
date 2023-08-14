@@ -1,6 +1,9 @@
 from db import Base
 from sqlalchemy import *
 from sqlalchemy.orm import relationship, backref
+
+from models.categories import Categories
+from models.products import Products
 from models.supplies import Supplies
 from models.users import Users
 from models.branches import Branches
@@ -39,5 +42,11 @@ class Uploaded(Base):
 
     this_supplier = relationship('Supplies', foreign_keys=[source_id],
                         primaryjoin=lambda: and_(Supplies.id == Uploaded.source_id, Uploaded.source == "supplies"), backref=backref("uploaded"))
+
+    product = relationship("Products", foreign_keys=[source_id],
+                           primaryjoin=lambda: and_(Products.id == Uploaded.source_id, Uploaded.source == "product"), backref=backref("uploaded"))
+
+    category = relationship("Categories", foreign_keys=[source_id],
+                            primaryjoin=lambda: and_(Categories.id == Uploaded.source_id, Uploaded.source == "category"), backref=backref("uploaded"))
     
 

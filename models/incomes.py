@@ -2,6 +2,7 @@ from sqlalchemy.orm import relationship, backref
 from db import Base
 from sqlalchemy import *
 from models.branches import Branches
+from models.kassa import Kassas
 from models.orders import Orders
 
 from models.users import Users
@@ -25,6 +26,10 @@ class Incomes(Base):
     branch = relationship('Branches', foreign_keys=[branch_id],
                              primaryjoin=lambda: and_(Branches.id == Incomes.branch_id))
     this_user = relationship('Users', foreign_keys=[source_id],
-                        primaryjoin=lambda: and_(Users.id == Incomes.source_id, Incomes.source == "user"), backref=backref("incomes"))
+                        primaryjoin=lambda: and_(Users.id == Incomes.source_id, Incomes.source == "user"), backref=backref("income"))
     this_order = relationship('Orders', foreign_keys=[source_id],
-                        primaryjoin=lambda: and_(Orders.id == Incomes.source_id, Incomes.source == "order"), backref=backref("incomes"))
+                        primaryjoin=lambda: and_(Orders.id == Incomes.source_id, Incomes.source == "order"), backref=backref("income"))
+
+    kassa = relationship('Kassas', foreign_keys=[kassa_id],
+                         primaryjoin=lambda: and_(Kassas.id == Incomes.kassa_id), backref=backref("income"))
+

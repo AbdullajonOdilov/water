@@ -10,23 +10,36 @@ from utils.paginatsiya import pagination
 from models.users import Users
 
 
-def all_users(search, page, limit, status, branch_id, role, db):
-    users = db.query(Users).options(joinedload(Users.phones))
+def all_users(search, page, limit, status, branch_id, db, thisuser):
+    if thisuser.branch_id:
+        users = db.query(Users).filter(Users.branch_id == thisuser.branch_id).options(joinedload(Users.phones),
+                                                                                      joinedload(Users.branch))
+    else:
+        users = db.query(Users).options(joinedload(Users.phones),
+                                        joinedload(Users.branch))
     if branch_id:
         users = users.filter(Users.branch_id == branch_id)
-    if role:
-        users = users.filter(Users.role == role)
     if search:
-        users = users.filter(Users.username.ilike(f"%{search}%"))
-    elif status is True:
-        users = db.query(Users).filter(Users.status==True)
-    elif status is False:
-        users = db.query(Users).filter(Users.status==False)
+        search_formatted = "%{}%".format(search)
+        users = users.filter(Users.name.like(search_formatted))
+    if status:
+        users = users.filter(Users.status==True)
+    if status==False:
+        users = users.filter(Users.status==False)
+    else:
+        users = users
     users = users.order_by(Users.id.desc())
     return pagination(users, page, limit)
 
+def one_user(db, user, ident):
+    the_user = db.query(Users).filter(Users.id == ident).options(joinedload(Users.phones),
+                                                                 joinedload(Users.branch)).first()
+    if the_user is None:
+        raise HTTPException(status_code=404)
+    return the_user
 
-def create_user_r(form, db, thisuser):
+
+def create_user_r(form, db, thisuser): #
     the_one(form.branch_id, Branches, db)
     if db.query(Users).filter(Users.username == form.username).first():
         raise HTTPException(status_code=400, detail="Username error")
@@ -55,7 +68,7 @@ def create_user_r(form, db, thisuser):
         else:
             name = i.name
             number = i.number
-            create_phone(name, comment, number, new_user_db.id, thisuser.id, db, 'user', thisuser.branch_id)
+            create_phone(name, comment, number, new_user_db.id, new_user_db.id, db, 'user', new_user_db.branch_id)
 
 
 def update_user_r(form, db, thisuser):

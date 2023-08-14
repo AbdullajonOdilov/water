@@ -18,6 +18,13 @@ def all_warehouses(search, page, limit, db,branch_id):
     return pagination(warehouses, page, limit)
 
 
+# bitta warehouseni phonesni olish uchun function
+def one_warehouse(db, ident):
+    the_w = db.query(Warehouses).filter(Warehouses.id == ident).options(joinedload(Warehouses.phones)).first()
+    if the_w is None:
+        raise HTTPException(status_code=404)
+    return the_w
+
 def create_warehouse_e(form, db, thisuser):
     if db.query(Warehouses).filter(Warehouses.address == form.address).first():
                 raise HTTPException(status_code=400, detail="Bunday ombor allaqachon bazada bor uni yangilashingiz mumkin")

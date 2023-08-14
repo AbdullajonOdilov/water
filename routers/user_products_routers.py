@@ -5,7 +5,7 @@ from schemas.users_schemas import CreateUser
 from utils.db_operations import the_one
 from db import database
 from utils.role_checker import *
-from functions.user_products_func import all_user_products, create_user_products_y, update_user_products_y
+from functions.user_products_func import all_user_products, create_user_products_y, update_user_products_y, one_user_p
 from models.user_products import User_products
 from schemas.user_products_schemas import UpdateUserProduct, CreateUserProduct
 
@@ -18,15 +18,15 @@ user_products_router = APIRouter(
 @user_products_router.get("/get_user_products")
 def get_products(id: int = 0,
                  page: int = 0, limit: int = 25,
-                 role: str = None, db: Session = Depends(database),
+                 db: Session = Depends(database),
                  current_user: CreateUser = Depends(get_current_active_user),
                  branch_id: int = 0):
     role_verification(user=current_user)
     if page < 0 or limit < 0:
         raise HTTPException(status_code=400, detail="page yoki limit 0 dan kichik kiritilmasligi kerak")
     if id > 0:
-        return the_one(id, User_products, db)
-    return all_user_products(page, limit, branch_id, role, db)
+        return one_user_p(id, db)
+    return all_user_products(page, limit, branch_id, db)
 
 
 @user_products_router.post("/create_user_products")

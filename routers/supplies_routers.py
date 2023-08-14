@@ -5,7 +5,7 @@ from schemas.users_schemas import CreateUser
 from utils.auth import get_current_active_user
 from utils.db_operations import the_one, get_with_branch
 from utils.role_checker import *
-from functions.supplies_func import all_supplies_r, create_supplies_r, update_supplies_r
+from functions.supplies_func import all_supplies_r, create_supplies_r, update_supplies_r, one_supply
 from schemas.supplies_schemas import CreateSupplies, UpdateSupplies
 from models.supplies import Supplies
 
@@ -24,19 +24,18 @@ def all_supplies(search: str = None, limit: int = 25, page: int = 0,
     if page < 0 or limit < 0:
         raise HTTPException(status_code=400, detail="page yoki limit 0 dan kichik kiritilmasligi kerak")
     if id > 0:
-        return the_one(id, Supplies, db)
+        return one_supply(db, id)
     # if branch_id > 0:
     #     return get_with_branch(db,Supplies,branch_id)
     return all_supplies_r(search, limit, page, db, branch_id)
 
 
 @supplies_router.post("/create_supplies")
-async def create_supplies(new_supplie: CreateSupplies,
+async def create_supplies(new_supply: CreateSupplies,
                           db: Session = Depends(database),
                           current_user: CreateUser = Depends(get_current_active_user)):
     role_verification(user=current_user)
-    await create_supplies_r(new_supplie, db, current_user)
-    
+    await create_supplies_r(new_supply, db, current_user)
     raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")
 
 

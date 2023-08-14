@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import joinedload
 from models.products import Products
+from models.users import Users
 from models.warehouses import Warehouses
 from utils.db_operations import save_in_db, the_one
 from utils.paginatsiya import pagination
@@ -19,6 +20,14 @@ def all_warehouses_products(search, page, limit, db, branch_id, warehouse_id):
     warehouses = warehouses.order_by(Warehouses_products.id.desc())
     return pagination(warehouses, page, limit)
 
+
+# bitta warehouse product malumotini olish uchun function
+def one_w_p(db, ident):
+    the_item = db.query(Warehouses_products).filter(Warehouses_products.id == ident).options(
+        joinedload(Warehouses_products.warehouse), joinedload(Warehouses_products.product)).first()
+    if the_item is None:
+        raise HTTPException(status_code=404)
+    return the_item
 
 def create_warehouse_products_e(form, db, thisuser):
     the_one(form.product_id, Products, db)

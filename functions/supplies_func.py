@@ -16,7 +16,8 @@ from utils.db_operations import save_in_db, the_one
 
 
 def all_supplies_r(search, limit, page, db, branch_id):
-    supplies = db.query(Supplies).options(joinedload(Supplies.warehouse), joinedload(Supplies.product))
+    supplies = db.query(Supplies).options(joinedload(Supplies.warehouse),
+                                          joinedload(Supplies.product), joinedload(Supplies.supplier))
     if search:
         search_formatted = "%{}%".format(search)
         supplies = supplies.filter(Supplies.name.like(search_formatted))
@@ -30,11 +31,20 @@ def all_supplies_r(search, limit, page, db, branch_id):
     return pagination(supplies, page, limit)
 
 
+# bitta supply ni malumotini olish uchun function
+def one_supply(db, ident):
+    the_item = db.query(Supplies).filter(Supplies.id == ident).options(joinedload(Supplies.warehouse),
+                                                                    joinedload(Supplies.product),
+                                                                    joinedload(Supplies.supplier)).first()
+    if the_item is None:
+        raise HTTPException(status_code=404)
+    return the_item
+
 async def create_supplies_r(form, db, this_user):
     users = db.query(Users).filter(Users.role == 'admin', Users.role == 'branch_admin').all()
     the_one(form.product_id, Products, db)
-    the_one(form.warehouse_id, Warehouses, db)
     the_one(form.supplier_id, Suppliers, db)
+    the_one(form.warehouse_id, Warehouses, db)
     new_supplies = Supplies(
         warehouse_id=form.warehouse_id,
         product_id=form.product_id,

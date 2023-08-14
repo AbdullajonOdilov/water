@@ -4,7 +4,7 @@ from models.transfers import Transfers
 from schemas.transfers_schemas import CreateTransfer, UpdateTransfer
 from utils.auth import get_current_active_user
 from db import database
-from functions.transfers_func import all_transfers, create_transfers_y, update_transfers_y
+from functions.transfers_func import all_transfers, create_transfers_y, update_transfers_y, one_transfer
 from schemas.users_schemas import CreateUser
 from utils.role_checker import *
 from utils.db_operations import get_in_db
@@ -15,7 +15,8 @@ transfers_router = APIRouter(
 
 
 @transfers_router.get("/get_transfers")
-def get_transfers(search: str = None, page: int = 0,
+def get_transfers(page: int = 0,
+                  status: bool = None,
                   limit: int = 25,
                   db: Session = Depends(database),
                   current_user: CreateUser = Depends(get_current_active_user),
@@ -24,8 +25,8 @@ def get_transfers(search: str = None, page: int = 0,
     if page < 0 or limit < 0:
         raise HTTPException(status_code=400, detail="page yoki limit 0 dan kichik kiritilmasligi kerak")
     if id > 0:
-        return get_in_db(db, Transfers, id)
-    return all_transfers(search, page, limit, db)
+        return one_transfer(db, id)
+    return all_transfers(status, page, limit, db)
 
 
 @transfers_router.post("/create_transfers")

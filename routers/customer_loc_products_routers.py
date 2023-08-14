@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from functions.customer_loc_products_func import all_customer_loc_products,create_customer_loc_product_y,\
-    update_customer_loc_product_y
+from functions.customer_loc_products_func import all_customer_loc_products, create_customer_loc_product_y, \
+    update_customer_loc_product_y, one_clp
 from models.customer_loc_pro import Customer_loc_products
 from utils.auth import get_current_active_user
 from utils.db_operations import get_in_db
@@ -17,7 +17,7 @@ customer_loc_products_router = APIRouter(
 
 
 @customer_loc_products_router.get("/get_products")
-def get_products(search: str = None, id: int = 0,
+def get_products(id: int = 0,
                  page: int = 0, limit: int = 25,
                  db: Session = Depends(database),
                  current_user: CreateUser = Depends(get_current_active_user),
@@ -26,8 +26,8 @@ def get_products(search: str = None, id: int = 0,
     if page < 0 or limit < 0:
         raise HTTPException(status_code=400, detail="page yoki limit 0 dan kichik kiritilmasligi kerak")
     if id > 0:
-        return get_in_db(db, Customer_loc_products, id)
-    return all_customer_loc_products(search, page, limit, db,branch_id)
+        return one_clp(db, id)
+    return all_customer_loc_products(page, limit, db, branch_id)
 
 
 @customer_loc_products_router.post("/create_loc_product")

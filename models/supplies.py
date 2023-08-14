@@ -26,7 +26,7 @@ class Supplies(Base):
     branch = relationship('Branches', foreign_keys=[branch_id],
                              primaryjoin=lambda: and_(Branches.id == Supplies.branch_id))
 
-    created_user = relationship('Suppliers', foreign_keys=[supplier_id],
+    supplier = relationship('Suppliers', foreign_keys=[supplier_id],
                         primaryjoin=lambda: and_(Suppliers.id == Supplies.supplier_id))
     
     product = relationship('Products', foreign_keys=[product_id],

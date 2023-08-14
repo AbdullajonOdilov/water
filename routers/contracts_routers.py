@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from db import database
-from functions.contracts_func import all_contracts_r, create_contract_y, update_contract_y
+from functions.contracts_func import all_contracts_r, create_contract_y, update_contract_y, one_contract
 from models.contracts import Contracts
 from schemas.contracts_schemas import CreateContract, UpdateContract
 from schemas.users_schemas import CreateUser
@@ -25,7 +25,7 @@ def all_contracts(id: int = 0, page: int = 0,
     if page < 0 or limit < 0:
         raise HTTPException(status_code=400, detail="page yoki limit 0 dan kichik kiritilmasligi kerak")
     if id > 0:
-        return the_one(id, Contracts, db)
+        return one_contract(id, db)
     return all_contracts_r(page, limit, db, branch_id)
 
 

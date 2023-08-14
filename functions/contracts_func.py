@@ -1,3 +1,6 @@
+from fastapi import HTTPException
+from sqlalchemy.orm import joinedload
+
 from models.warehouse_products import Warehouses_products
 from utils.db_operations import save_in_db, get_in_db, the_one
 from utils.paginatsiya import pagination
@@ -5,11 +8,21 @@ from models.contracts import Contracts
 
 
 def all_contracts_r(page, limit, db, branch_id):
-    contracts = db.query(Contracts)
+    contracts = db.query(Contracts).options(joinedload(Contracts.warehouse_product),
+                                            joinedload(Contracts.user))
     if branch_id > 0:
-        contracts = db.query(Contracts).filter(Contracts.branch_id == branch_id)
+        contracts = contracts.filter(Contracts.branch_id == branch_id)
     contracts = contracts.order_by(Contracts.id.desc())
     return pagination(contracts, page, limit)
+
+
+def one_contract(ident, db):
+    the_item = db.query(Contracts).filter(Contracts.id == ident).options(
+        joinedload(Contracts.warehouse_product), joinedload(Contracts.user)
+    ).first()
+    if the_item is None:
+        raise HTTPException(status_code=404)
+    return the_item
 
 
 def create_contract_y(form, db, this_user):

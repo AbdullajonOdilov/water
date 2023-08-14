@@ -2,7 +2,8 @@ import inspect
 
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from functions.warehouse_products_func import all_warehouses_products, create_warehouse_products_e,update_warehouse_products_e
+from functions.warehouse_products_func import all_warehouses_products, create_warehouse_products_e, \
+    update_warehouse_products_e, one_w_p
 from models.warehouse_products import Warehouses_products
 from utils.auth import get_current_active_user
 from utils.db_operations import the_one
@@ -26,16 +27,8 @@ def get_warehouses(search: str = None, id: int = 0, page: int = 0,
     if page < 0 or limit < 0:
         raise HTTPException(status_code=400, detail="page yoki limit 0 dan kichik kiritilmasligi kerak")
     if id > 0:
-        return the_one(id, Warehouses_products, db)
+        return one_w_p(db, id)
     return all_warehouses_products(search, page, limit, db, branch_id, warehouse_id)
-
-
-# @warehouses_products_router.post("/create_warehouses_products")
-# def create_warehouse(new_warehouse: Warehouse_products_create, db: Session = Depends(database),
-#                      current_user: CreateUser = Depends(get_current_active_user)):
-#     role_verification(user=current_user)
-#     create_warehouse_products_e(new_warehouse, db, current_user)
-#     raise HTTPException(status_code=200, detail="Amaliyot muvaffaqiyatli amalga oshirildi")
 
 
 @warehouses_products_router.put("/update_warehouses_products")

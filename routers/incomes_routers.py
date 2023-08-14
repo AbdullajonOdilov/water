@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from functions.incomes_func import all_income_r, create_income_r, update_income_e, delete_income_e
+from functions.incomes_func import all_income_r, create_income_r, update_income_e, delete_income_e, one_income
 from models.incomes import Incomes
 from utils.auth import get_current_active_user
 from utils.db_operations import get_in_db
@@ -24,7 +24,7 @@ def get_incomes(id: int = 0, page: int = 0, limit: int = 25,
     if page < 0 or limit < 0:
         raise HTTPException(status_code=400, detail="page yoki limit 0 dan kichik kiritilmasligi kerak")
     if id > 0:
-        return get_in_db(db, Incomes, id)
+        return one_income(id, db)
     return all_income_r(page, limit, db, branch_id)
 
 

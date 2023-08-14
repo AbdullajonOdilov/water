@@ -6,6 +6,7 @@ class CreateIncome(BaseModel):
     comment: str
     kassa_id: int
     source: str
+    source_id: int
 
 
 class UpdateIncome(BaseModel):

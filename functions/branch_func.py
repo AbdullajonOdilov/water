@@ -11,14 +11,14 @@ from models.branches import Branches
 def all_branches(search, page, limit, status, db):
     branches = db.query(Branches)
     if search:
-        branches = branches.filter(Branches.name.like(f"%{search}%"))
+        branches = branches.filter(Branches.name.ilike(f"%{search}%"))
     if status is True:
         branches = branches.filter(Branches.status == True)
     elif status is False:
         branches = branches.filter(Branches.status == False)
     else:
         branches = branches
-    branches = db.query(Branches).order_by(Branches.id.desc())
+    branches = branches.order_by(Branches.id.desc())
     return pagination(branches, page, limit)
 
 

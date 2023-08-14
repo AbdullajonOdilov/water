@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from functions.warehouses_functions import all_warehouses, update_warehouse_e
+from functions.warehouses_functions import all_warehouses, update_warehouse_e, create_warehouse_e, one_warehouse
 from models.warehouses import Warehouses
 from utils.auth import get_current_active_user
 from utils.db_operations import get_in_db
-from schemas.warehouse_schemas import UpdateWarehouse
+from schemas.warehouse_schemas import UpdateWarehouse, CreateWarehouse
 from schemas.users_schemas import CreateUser
 from db import database
 from utils.role_checker import *
@@ -17,14 +17,22 @@ warehouses_router = APIRouter(
 
 @warehouses_router.get("/get_warehouses")
 def get_warehouses(search: str = None, id: int = 0, page: int = 0, limit: int = 25, db: Session = Depends(database),
-              current_user: CreateUser = Depends(get_current_active_user),branch_id: int = 0):
+                   current_user: CreateUser = Depends(get_current_active_user),branch_id: int = 0):
     role_verification(user=current_user)
     if page < 0 or limit < 0:
         raise HTTPException(status_code=400, detail="page yoki limit 0 dan kichik kiritilmasligi kerak")
     if id > 0:
-        return get_in_db(db, Warehouses, id)
+        return one_warehouse(db, id)
     return all_warehouses(search, page, limit, db,branch_id)
 
+
+@warehouses_router.post("/create_warehouse")
+def create_warehouse(warehouse: CreateWarehouse,
+                     db: Session = Depends(database),
+                     current_user: CreateUser = Depends(get_current_active_user)):
+    role_verification(user=current_user)
+    create_warehouse_e(warehouse, db, current_user)
+    raise HTTPException(status_code=201, detail="Amaliyot muvaffaqiyatli amalga oshirildi")
 
 @warehouses_router.put("/update_warehouse")
 def update_warehouse(this_warehouse: UpdateWarehouse, db: Session = Depends(database),

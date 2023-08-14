@@ -8,17 +8,25 @@ from utils.paginatsiya import pagination
 from sqlalchemy.orm import joinedload
 
 
-def all_customers(search, page, limit, db,branch_id):
-    customers = db.query(Customers).join(Customers.phones).join(Customers.customer_loc).options(joinedload(Customers.phones),joinedload(Customers.customer_loc))
+def all_customers(search, page, limit, db, branch_id):
+    customers_query = db.query(Customers).options(joinedload(Customers.phones))
     if branch_id > 0:
-        customers = customers.filter(Customers.branch_id == branch_id)
+        customers_query = customers_query.filter(Customers.branch_id == branch_id)
     if search:
-        search_formatted = "%{}%".format(search)
-        customers = customers.filter(Customers.name.like(search_formatted))
-    else:
-        search_filter = Customers.id > 0
-    customers = customers.filter(search_filter).order_by(Customers.name.asc())
-    return pagination(customers, page, limit)
+        search_formatted = f"%{search}%"
+        customers_query = customers_query.filter(Customers.name.like(search_formatted))
+    # Apply order_by to the query object
+    customers_query = customers_query.order_by(Customers.id.desc())
+    return pagination(customers_query, page, limit)
+
+
+# bitta customer  malumotini olish uchun function
+def one_c(db, ident):
+    the_item = db.query(Customers).filter(Customers.id == ident).options(
+        joinedload(Customers.phones)).first()
+    if the_item is None:
+        raise HTTPException(status_code=404)
+    return the_item
 
 
 def create_customers_y(form, db, this_user):
@@ -44,8 +52,8 @@ def create_customers_y(form, db, this_user):
             else:
                 name = i.name
                 number = i.number
-                create_phone(name,comment,number,new_customers_db.id,this_user.id,db,"customers",this_user.branch_id)
-        raise HTTPException(status_code=200,detail=new_customers_db.id)
+                create_phone(name, comment, number, new_customers_db.id, this_user.id, db, "customers",this_user.branch_id)
+        raise HTTPException(status_code=200, detail=new_customers_db.id + "id li mijoz yaratildi")
 
 
 def update_customers_y(form, db, this_user):

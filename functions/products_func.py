@@ -1,3 +1,5 @@
+import os
+
 from fastapi import HTTPException
 from sqlalchemy.orm import joinedload
 
@@ -20,26 +22,35 @@ def all_products(search, page, limit, db, category_id, branch_id):
     return pagination(products, page, limit)
 
 
+# bitta productni malumotini olish uchun function
+def one_product(db, ident):
+    the_p = db.query(Products).filter(Products.id == ident).options(joinedload(Products.category)).first()
+    if the_p is None:
+        raise HTTPException(status_code=404)
+    return the_p
+
+
 def create_products_y(form, db, this_user):
-    the_one(form.category_id, Categories, db)
-    # category_id = db.query(Categories.id == )
-    new_products_db = Products(
-        name=form.name,
-        comment=form.comment,
-        price=form.price,
-        litr=form.litr,
-        category_id=form.category_id,
-        user_id=this_user.id,
-        branch_id=this_user.branch_id
-    )
-    save_in_db(db, new_products_db)
+    if db.query(Products).filter(Products.name == form.name).first():
+        raise HTTPException(status_code=400, detail="Bunday malumot allaqachon bazada bor")
+    else:
+        new_products_db = Products(
+            name=form.name,
+            comment=form.comment,
+            price=form.price,
+            litr=form.litr,
+            category_id=form.category_id,
+            user_id=this_user.id,
+            branch_id=this_user.branch_id
+
+        )
+        save_in_db(db, new_products_db)
 
 
 def update_products_y(form, db, this_user):
-    the_one(form.category_id, Categories, db)
-    product = the_one(form.id, Products, db)
-    if product:
+    if the_one(form.id, Products, db):
         db.query(Products).filter(Products.id == form.id).update({
+            Products.id: form.id,
             Products.name: form.name,
             Products.comment: form.comment,
             Products.price: form.price,
@@ -49,4 +60,6 @@ def update_products_y(form, db, this_user):
             Products.user_id: this_user.id
         })
         db.commit()
+
+
 

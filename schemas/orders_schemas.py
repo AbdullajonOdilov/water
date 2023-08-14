@@ -11,7 +11,7 @@ class CreateOrder(BaseModel):
 
 class UpdateOrder(BaseModel):
     id: int
-    status: int = Field(..., le=4)
+    status: int = Field(..., le=2)
     driver_id: int
     warehouser_id: int
     customer_loc_id: int
